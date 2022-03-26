@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	// DefaultNumSaltBytes specifies default number of salt bytes used when creating via New().
+	// DefaultNumSaltBytes specifies the default number of salt bytes
+	// used when creating via New().
 	DefaultNumSaltBytes int = 20
 
 	// MinSaltBytes specifies the minimum allowed number of salt bytes.
@@ -31,6 +32,7 @@ const (
 )
 
 // New returns a new hash.Hash  with the default salt size (20 bytes).
+// The salt will be generated using the crypto/rand package.
 func New() (crypto.Hash, error) {
 	d := new(digest)
 	d.Reset()
@@ -42,7 +44,8 @@ func New() (crypto.Hash, error) {
 	return d, nil
 }
 
-// NewWithSalt returns a new hash.Hash with the specified salt. Salt size must be 1 or greater.
+// NewWithSalt returns a new hash.Hash with the specified salt.
+// Salt size must be 1 or greater.
 func NewWithSalt(salt []byte) (crypto.Hash, error) {
 	if len(salt) < MinSaltBytes {
 		return nil, errors.New(errMsgSaltTooShort)
@@ -53,7 +56,7 @@ func NewWithSalt(salt []byte) (crypto.Hash, error) {
 	return d, nil
 }
 
-// NewForSaltSize returns a new hash.Hash with the specified salt size. Salt size must be 1 or greater.
+// NewForSaltSize returns a new hash.Hash with the specified salt size. Salt size must be 1 or greater. The salt will be generated using the crypto/rand package.
 func NewForSaltSize(numSaltBytes int) (crypto.Hash, error) {
 	if numSaltBytes < MinSaltBytes {
 		return nil, errors.New(errMsgSaltTooShort)
@@ -120,19 +123,26 @@ type digest struct {
 	salt     []byte
 }
 
+// Size returns the number of bytes Sum will return.
 func (d *digest) Size() int { return sha1.Size + len(d.salt) } // hash.Hash interface
 
+// BlockSize returns the hash's underlying block size.
 func (d *digest) BlockSize() int { return BlockSize } // hash.Hash interface
 
+// Reset resets the Hash to its initial state. The salt will remain unchanged.
 func (d *digest) Reset() { // hash.Hash interface
 	d.internal = make([]byte, 0)
 }
 
+// Write adds more data to the running hash.
+// It never returns an error.
 func (d *digest) Write(p []byte) (int, error) { // io.Writer interface
 	d.internal = append(d.internal, p...)
 	return len(p), nil
 }
 
+// Sum appends the current hash to b and returns the resulting slice.
+// It does not change the underlying hash state.
 func (d *digest) Sum(in []byte) []byte { // hash.Hash interface
 	tmp := append(d.internal, d.salt...)
 	sum := sha1.Sum(tmp)
@@ -140,14 +150,15 @@ func (d *digest) Sum(in []byte) []byte { // hash.Hash interface
 	return append(in, tmp...)
 }
 
-// String returns the base-64 encoded string representation of the SSHA1 sum, prefixed with "{SSHA}".
+// String returns the base-64 encoded string representation of
+// the SSHA1 sum, prefixed with "{SSHA}".
 func (d *digest) String() string { // fmt.Stringer interface
 	sum := d.Sum(nil)
 	return fmt.Sprintf(outputFmt, base64.StdEncoding.EncodeToString(sum))
 }
 
 // HexString returns the SSHA1 sum as a hexadecimal string
-func (d *digest) HexString() string { // ssha1.Hash interface
+func (d *digest) HexString() string { // crypto.Hash interface
 	sum := d.Sum(nil)
 	return hex.EncodeToString(sum)
 }
