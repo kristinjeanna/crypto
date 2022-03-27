@@ -7,6 +7,30 @@ import (
 	"testing"
 )
 
+type sumCase struct {
+	plaintext         []byte
+	salt              []byte
+	expectedHexString string
+}
+
+func TestSum(t *testing.T) {
+	sumCases := []sumCase{
+		{[]byte("supercalifragilisticexpialidocious"), []byte("n4pggXWL"), "8eadde532169b6908034886be119c9f0ca61801e6e3470676758574c"},
+		{[]byte("abcdefghijklmnopqrstuvwxyz"), []byte("K218iReB"), "4ced2536edce6706cccf0c14a10a939022f6b0614b32313869526542"},
+	}
+
+	for _, c := range sumCases {
+		result, err := Sum(c.plaintext, c.salt)
+		if err != nil {
+			t.Errorf("method Sum() returned unexpected error: %e", err)
+		}
+		resultString := hex.EncodeToString(result)
+		if resultString != c.expectedHexString {
+			t.Errorf("result = %s; expected %s", resultString, c.expectedHexString)
+		}
+	}
+}
+
 type sizeCase struct {
 	newMethod  string
 	h          hash.Hash
@@ -35,6 +59,19 @@ func setUpSizeCases() []sizeCase {
 	cases = append(cases, c1, c2, c3)
 
 	return cases
+}
+
+func TestSize(t *testing.T) {
+	cases := setUpSizeCases()
+
+	for _, c := range cases {
+		if c.errFromNew != nil {
+			t.Errorf("%s returned unexpected error: %e", c.newMethod, c.errFromNew)
+		}
+		if got := c.h.Size(); got != c.expected {
+			t.Errorf("for test case %v: Size = %d; expected %d", c, got, c.expected)
+		}
+	}
 }
 
 type validateCase struct {
@@ -80,22 +117,10 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestSize(t *testing.T) {
-	cases := setUpSizeCases()
-
-	for _, c := range cases {
-		if c.errFromNew != nil {
-			t.Errorf("%s returned unexpected error: %e", c.newMethod, c.errFromNew)
-		}
-		if got := c.h.Size(); got != c.expected {
-			t.Errorf("for test case %v: Size = %d; expected %d", c, got, c.expected)
-		}
-	}
-}
 func TestBlockSize(t *testing.T) {
 	c, err := New()
 	if err != nil {
-		t.Errorf("New() returned unexpected error: %e", err)
+		t.Errorf("method New() returned unexpected error: %e", err)
 	}
 	if got := c.BlockSize(); got != BlockSize {
 		t.Errorf("BlockSize = %d; expected %d", got, BlockSize)
