@@ -56,7 +56,9 @@ func NewWithSalt(salt []byte) (crypto.Hash, error) {
 	return d, nil
 }
 
-// NewForSaltSize returns a new hash.Hash with the specified salt size. Salt size must be 1 or greater. The salt will be generated using the crypto/rand package.
+// NewForSaltSize returns a new hash.Hash with the specified salt size.
+// Salt size must be 1 or greater. The salt will be generated using the
+// crypto/rand package.
 func NewForSaltSize(numSaltBytes int) (crypto.Hash, error) {
 	if numSaltBytes < MinSaltBytes {
 		return nil, errors.New(errMsgSaltTooShort)
@@ -92,7 +94,8 @@ func Sum(data, salt []byte) ([]byte, error) {
 	return d.Sum(nil), nil
 }
 
-// Validate returns true if the SSHA1 hash of the sample matches the specified SSHA1 hash; false, otherwise.
+// Validate returns true if the SSHA1 hash of the sample matches the
+// specified SSHA1 hash; false, otherwise.
 func Validate(ssha1Hash, sample []byte) (bool, error) {
 	length := len(ssha1Hash)
 	if length < sha1.Size {
