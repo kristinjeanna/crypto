@@ -147,7 +147,8 @@ func (d *digest) Write(p []byte) (int, error) { // io.Writer interface
 // Sum appends the current hash to b and returns the resulting slice.
 // It does not change the underlying hash state.
 func (d *digest) Sum(in []byte) []byte { // hash.Hash interface
-	tmp := append(d.internal, d.salt...)
+	tmp := d.internal
+	tmp = append(tmp, d.salt...)
 	sum := sha1.Sum(tmp)
 	tmp = append(sum[:], d.salt...)
 	return append(in, tmp...)
