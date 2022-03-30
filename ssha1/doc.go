@@ -19,7 +19,7 @@ Likewise, to validate a hash:
 
 	result, err := Validate(ssha1Hash, plaintext)
 	if err != nil {
-		panic("an error occurred while calculating the hash")
+		panic("an error occurred while validating the hash")
 	}
 	if !result {
 		fmt.Println("validation failed")
