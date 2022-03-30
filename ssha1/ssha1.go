@@ -116,7 +116,7 @@ func Validate(ssha1Hash, sample []byte) (bool, error) {
 	d.Write(sample)
 	result := d.Sum(nil)
 
-	return bytes.Compare(ssha1Hash, result) == 0, nil
+	return bytes.Equal(ssha1Hash, result), nil
 }
 
 // #########################################################
