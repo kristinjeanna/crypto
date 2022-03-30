@@ -22,14 +22,15 @@ func TestSum(t *testing.T) {
 	}
 
 	for _, c := range sumCases {
-		if c.salt == nil { // for coverage
+		switch {
+		case c.salt == nil: // for coverage
 			Sum(c.plaintext, c.salt)
-		} else if len(c.salt) == 0 { // should produce err due to 0-length salt
+		case len(c.salt) == 0: // should produce err due to 0-length salt
 			_, err := Sum(c.plaintext, c.salt)
 			if err == nil {
 				t.Errorf("method Sum() failed to return expected error")
 			}
-		} else {
+		default:
 			result, err := Sum(c.plaintext, c.salt)
 			if err != nil {
 				t.Errorf("method Sum() returned unexpected error: %e", err)
